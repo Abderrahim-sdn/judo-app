@@ -153,35 +153,20 @@ main #canceladdParticipantBtn{
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 .participants-table {
   width: 100%;
-  min-width: 700px; /* important */
   border-collapse: collapse;
+  margin: 2rem 0;
 }
 
 .participants-table th,
 .participants-table td {
   padding: 10px;
-  text-align: left;
-  white-space: nowrap;
-}
-
-
-/* .participants-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 2rem 0;
-} */
-
-/* .participants-table th,
-.participants-table td {
-  padding: 10px;
   border-bottom: 1px solid #ddd;
   text-align: left;
-} */
+}
 
 .participants-table th {
   background-color: var(--primary-color);
@@ -213,4 +198,91 @@ main #canceladdParticipantBtn{
   padding: 5px 8px;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.edit-btn {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+#editPartcipantForm{
+  display: none;
+}
+
+#saveEditParticipantBtn{
+    background-color: var(--primary-color);
+    color: var(--bg-color);
+    border: none;
+    outline: none;
+    border-radius: 5px;
+    padding: 7px 15px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#cancelEditParticipantBtn{
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+
+/* Cards hidden on desktop */
+.participants-cards {
+  display: none;
+}
+
+/* Mobile layout */
+@media (max-width: 768px) {
+  .table-wrapper {
+    display: none;
+  }
+
+  .participants-cards {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .participant-card {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+
+  .participant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: .5rem;
+  }
+
+  .participant-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+
+  .participant-info {
+    font-size: .95rem;
+    color: #555;
+    margin: 4px 0;
+  }
+
+  .participant-actions {
+    margin-top: .8rem;
+    display: flex;
+    gap: 5px;
+  }
+
+  .participant-actions button {
+    width: 100%;
+  }
 }

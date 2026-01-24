@@ -62,8 +62,8 @@ function addParticipant() {
             icon: "success",
             draggable: true
         });
-        cancelBtn.click();
     });
+    cancelBtn.click();
 }
 
 
