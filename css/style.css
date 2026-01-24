@@ -150,19 +150,38 @@ main #canceladdParticipantBtn{
 
 /******************************************** Participant List *******************************************/
 
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
 .participants-table {
   width: 100%;
+  min-width: 700px; /* important */
   border-collapse: collapse;
-  margin: 2rem 0;
 }
 
 .participants-table th,
 .participants-table td {
   padding: 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+
+/* .participants-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+} */
+
+/* .participants-table th,
+.participants-table td {
+  padding: 10px;
   border-bottom: 1px solid #ddd;
   text-align: left;
-}
+} */
 
 .participants-table th {
   background-color: var(--primary-color);
