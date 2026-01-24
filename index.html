@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="images/logo.png">
+  <title>Add Partcipant</title>
+</head>
+<body>
+
+  <header class="head">
+    <img src="images/logo.png" alt="Logo">
+    <!-- <h1>Kuwate El Fennec</h1> -->
+  </header>
+
+  <main>
+
+  <h2>Ajouter un participant</h2>
+
+  <form>
+
+    <input type="text" id="nom" placeholder="Nom" required>
+    <input type="text" id="prenom" placeholder="Prenom" required>
+    <input type="date" id="dateNaissance" placeholder="Date de naissance" required>
+    <select id="groupe">
+      <option value="">Groupe</option>
+      <option value="adult">Adult</option>
+      <option value="enfant">Enfants</option>
+    </select>
+    <select id="ceinture">
+      <option value="">Ceinture</option>
+      <option value="blanche">Blanche</option>
+      <option value="jaune">Jaune</option>
+      <option value="orange">Orange</option>
+      <option value="verte">Verte</option>
+      <option value="bleue">Bleue</option>
+      <option value="marron">Marron</option>
+      <option value="noire">Noire</option>
+    </select>
+
+    <div class="buttons">
+      <button id="canceladdParticipantBtn">Annuler</button>
+      <button id="addParticipantBtn" onclick="addParticipant()">Ajouter</button>
+    </div>
+    
+  </form>
+
+
+  </main>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
