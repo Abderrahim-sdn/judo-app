@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="images/logo.png">
+  <title>Participants</title>
+</head>
+<body>
+
+  <header class="head">
+    <img src="images/logo.png" alt="Logo">
+    <!-- <h1>Kuwate El Fennec</h1> -->
+  </header>
+
+<main>
+
+  <h2>Liste des participants</h2>
+
+  <table class="participants-table">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Groupe</th>
+        <th>Ceinture</th>
+        <th>Inscrit le</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="participantsBody">
+      <!-- Firebase data here -->
+    </tbody>
+  </table>
+</main>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script src="js/participants.js"></script>
+</body>
+</html>

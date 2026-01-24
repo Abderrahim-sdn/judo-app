@@ -63,29 +63,8 @@ function addParticipant() {
             draggable: true
         });
         cancelBtn.click();
-        // loadParticipants();
     });
 }
-
-
-// Display Participants
-// function loadParticipants() {
-//   const list = document.getElementById("participantsList");
-//   list.innerHTML = "";
-
-//   db.collection("participants").get().then((snapshot) => {
-//     snapshot.forEach((doc) => {
-//       const li = document.createElement("li");
-//       li.textContent = doc.data().name + " - " + doc.data().belt;
-//       list.appendChild(li);
-//     });
-//   });
-// }
-
-// loadParticipants();
-
-
-
 
 
 // Ceintures

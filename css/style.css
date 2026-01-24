@@ -148,3 +148,50 @@ main #canceladdParticipantBtn{
 
 
 
+/******************************************** Participant List *******************************************/
+
+
+.participants-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+}
+
+.participants-table th,
+.participants-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.participants-table th {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  display: inline-block;
+}
+
+/* Ceinture badges */
+.badge{padding: 5px 10px;}
+.badge.blanche { background: #f5f5f5; border: 2px solid #ccc;}
+.badge.jaune { background: #fff59d; border: 2px solid #fbc02d;}
+.badge.orange { background: #ffcc80; border: 2px solid #fb8c00;}
+.badge.verte { background: #a5d6a7; border: 2px solid #388e3c;}
+.badge.bleue { background: #90caf9; border: 2px solid #1976d2;}
+.badge.marron { background: #bcaaa4; border: 2px solid #5d4037;}
+.badge.noire { background: #212121; color: white; border: 2px solid #000;}
+
+.delete-btn {
+  background: #e53935;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
