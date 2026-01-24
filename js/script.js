@@ -15,27 +15,56 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 
-// Add Participant Function
+
+// Submit participant
+const form = document.getElementById("participantForm");
+form.addEventListener("submit", (e) => {
+  e.preventDefault(); // prevent page reload
+  addParticipant();
+});
+
+// Annuler btn
+const cancelBtn = document.getElementById("canceladdParticipantBtn");
+cancelBtn.addEventListener("click", () => {
+  form.reset();
+  ceintureSelect.className = ""; // reset belt color
+});
+
+
+
+// add Participant Function
 function addParticipant() {
-  const name = document.getElementById("name").value;
-  const belt = document.getElementById("belt").value;
+    const nom = document.getElementById("nom").value;
+    const prenom = document.getElementById("prenom").value;
+    const dateNaissance = document.getElementById("dateNaissance").value; 
+    const groupe = document.getElementById("groupe").value; 
+    const ceinture = document.getElementById("ceinture").value;
+    const dateInscriptionInput = document.getElementById("dateInscription");
+    let createdAt;
 
-  if (name === "" || belt === "") {
-    alert("Remplir tous les champs");
-    return;
-  }
+    if (dateInscriptionInput.value) {
+        createdAt = new Date(dateInscriptionInput.value + "T00:00:00"); // convert YYYY-MM-DD to Date
+    } else {
+        createdAt = new Date(); // default to today
+    }
 
-  db.collection("participants").add({
-    name: name,
-    belt: belt,
-    createdAt: new Date()
-  })
-  .then(() => {
-    alert("Participant ajouté");
-    document.getElementById("name").value = "";
-    document.getElementById("belt").value = "";
-    loadParticipants();
-  });
+    db.collection("participants").add({
+        nom: nom,
+        prenom: prenom,
+        dateNaissance: dateNaissance,
+        groupe: groupe,
+        ceinture: ceinture,
+        createdAt: createdAt
+    })
+    .then(() => {
+        Swal.fire({
+            title: "Participant ajouté avec succes",
+            icon: "success",
+            draggable: true
+        });
+        cancelBtn.click();
+        // loadParticipants();
+    });
 }
 
 
@@ -63,8 +92,15 @@ function addParticipant() {
 const ceintureSelect = document.getElementById("ceinture");
 
 ceintureSelect.addEventListener("change", () => {
-  ceintureSelect.className = ""; // reset
-  if (ceintureSelect.value !== "") {
-    ceintureSelect.classList.add("ceinture-" + ceintureSelect.value);
-  }
+
+    ceintureSelect.className = ceintureSelect.className.replace(/\bceinture-\w+\b/g, "");
+    if (ceintureSelect.value) {
+        ceintureSelect.classList.add("ceinture-" + ceintureSelect.value);
+    }
 });
+
+
+
+
+// new participants Pre-fill with today’s date
+document.getElementById("dateInscription").valueAsDate = new Date();
