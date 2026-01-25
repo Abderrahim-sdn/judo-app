@@ -200,7 +200,7 @@ main #canceladdParticipantBtn{
   cursor: pointer;
 }
 
-.paiment-btn{
+.paiement-btn{
   background: rgb(47, 186, 54);
   color: white;
   border: none;
@@ -267,6 +267,12 @@ main #canceladdParticipantBtn{
   font-size: 0.9rem;
 }
 
+#searchInput{
+  margin-top: 2rem;
+  padding:8px; 
+  width:100%; 
+  max-width:300px;
+}
 
 
 /* Cards hidden on desktop */

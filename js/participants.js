@@ -11,62 +11,93 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+
+let allParticipants = [];
+
 const tableBody = document.getElementById("participantsBody");
 const cardsContainer = document.getElementById("participantsCards");
 
 function loadParticipants() {
   tableBody.innerHTML = "";
   cardsContainer.innerHTML = "";
+  allParticipants = [];
 
   db.collection("participants")
     .orderBy("createdAt", "desc")
     .get()
     .then(snapshot => {
       snapshot.forEach(doc => {
-        const p = doc.data();
-
-        /* ===== TABLE ROW (DESKTOP) ===== */
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${p.nom}</td>
-          <td>${p.prenom}</td>
-          <td>${p.groupe}</td>
-          <td>
-            <span class="badge ${p.ceinture}">${p.ceinture}</span>
-          </td>
-          <td>${p.createdAt ? formatDate(p.createdAt.toDate()) : "-"}</td>
-          <td>
-            <button class="paiment-btn" onclick="participantPayment('${doc.id}')"> Paiment </button>
-            <button class="edit-btn" onclick="editParticipant('${doc.id}')"> Modifier </button>
-            <button class="delete-btn" onclick="deleteParticipant('${doc.id}')"> Supprimer </button>
-          </td>
-        `;
-        tableBody.appendChild(tr);
-
-        /* ===== CARD (MOBILE) ===== */
-        const card = document.createElement("div");
-        card.className = "participant-card";
-        card.innerHTML = `
-          <div class="participant-header">
-            <div class="participant-name">${p.nom} ${p.prenom}</div>
-            <span class="badge ${p.ceinture}">${p.ceinture}</span>
-          </div>
-
-          <div class="participant-info">Groupe : ${p.groupe}</div>
-          <div class="participant-info">Inscrit : ${
-            p.createdAt ? formatDate(p.createdAt.toDate()) : "-"
-          }</div>
-
-          <div class="participant-actions">
-            <button class="paiment-btn" onclick="participantPayment('${doc.id}')"> Paiment </button>
-            <button class="edit-btn" onclick="editParticipant('${doc.id}')"> Modifier </button>
-            <button class="delete-btn" onclick="deleteParticipant('${doc.id}')"> <img src="icons/trash.png" alt="Supprimer"> </button>
-          </div>
-        `;
-        cardsContainer.appendChild(card);
+        allParticipants.push({
+          id: doc.id,
+          ...doc.data()
+        });
       });
+
+      renderParticipants(allParticipants);
     });
 }
+
+
+function renderParticipants(list) {
+  tableBody.innerHTML = "";
+  cardsContainer.innerHTML = "";
+
+  list.forEach(p => {
+    /* ===== TABLE ===== */
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${p.nom}</td>
+      <td>${p.prenom}</td>
+      <td>${p.groupe}</td>
+      <td><span class="badge ${p.ceinture}">${p.ceinture}</span></td>
+      <td>${p.createdAt ? formatDate(p.createdAt.toDate()) : "-"}</td>
+      <td>
+        <button class="paiement-btn" onclick="participantPayment('${p.id}')"> Paiement </button>
+        <button class="edit-btn" onclick="editParticipant('${p.id}')"> Modifier </button>
+        <button class="delete-btn" onclick="deleteParticipant('${p.id}')"> Supprimer </button>
+      </td>
+    `;
+    tableBody.appendChild(tr);
+
+    /* ===== CARD ===== */
+    const card = document.createElement("div");
+    card.className = "participant-card";
+    card.innerHTML = `
+      <div class="participant-header">
+        <div class="participant-name">${p.nom} ${p.prenom}</div>
+        <span class="badge ${p.ceinture}">${p.ceinture}</span>
+      </div>
+
+      <div class="participant-info">Groupe : ${p.groupe}</div>
+      <div class="participant-info">
+        Inscrit : ${p.createdAt ? formatDate(p.createdAt.toDate()) : "-"}
+      </div>
+
+      <div class="participant-actions">
+        <button class="paiement-btn" onclick="participantPayment('${p.id}')"> Paiement </button>
+        <button class="edit-btn" onclick="editParticipant('${p.id}')"> Modifier </button>
+        <button class="delete-btn" onclick="deleteParticipant('${p.id}')">
+          <img src="icons/trash.png">
+        </button>
+      </div>
+    `;
+    cardsContainer.appendChild(card);
+  });
+}
+
+
+// search logic
+document.getElementById("searchInput").addEventListener("input", (e) => {
+  const value = e.target.value.toLowerCase();
+
+  const filtered = allParticipants.filter(p =>
+    p.nom.toLowerCase().includes(value) ||
+    p.prenom.toLowerCase().includes(value)
+  );
+
+  renderParticipants(filtered);
+});
+
 
 
 function deleteParticipant(id) {
@@ -159,6 +190,8 @@ function editParticipant(id) {
         document.getElementById("dateInscription").value = dateInscr;
     });
 }
+
+
 
 // Paiement
 function participantPayment(id) {
