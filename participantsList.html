@@ -81,8 +81,8 @@
     </div>
 
     <div class="form-group">
-        <label for="dateInscription">Date d'inscription</label>
-        <input type="date" id="dateInscription">
+      <label for="dateInscription">Date d'inscription</label>
+      <input type="date" id="dateInscription">
     </div>
 
     <div class="buttons">
@@ -91,6 +91,23 @@
     </div>
     </form>
     
+    <div id="paymentDiv">
+        <h2>Paiement</h2>
+
+        <div class="form-group">
+            <label for="paymentAmount">Montant (DA)</label>
+            <input type="number" id="paymentAmount" min="0">
+        </div>
+
+        <div class="buttons">
+            <button id="cancelPaymentBtn">Annuler</button>
+            <button id="savePaymentBtn">Valider paiement</button>
+        </div>
+
+        <h3>Historique des paiements</h3>
+        <div id="paymentsList"></div>
+    </div>
+
     
     </main>
 

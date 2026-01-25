@@ -36,6 +36,7 @@ function loadParticipants() {
           </td>
           <td>${p.createdAt ? formatDate(p.createdAt.toDate()) : "-"}</td>
           <td>
+            <button class="paiment-btn" onclick="participantPayment('${doc.id}')"> Paiment </button>
             <button class="edit-btn" onclick="editParticipant('${doc.id}')"> Modifier </button>
             <button class="delete-btn" onclick="deleteParticipant('${doc.id}')"> Supprimer </button>
           </td>
@@ -57,8 +58,9 @@ function loadParticipants() {
           }</div>
 
           <div class="participant-actions">
+            <button class="paiment-btn" onclick="participantPayment('${doc.id}')"> Paiment </button>
             <button class="edit-btn" onclick="editParticipant('${doc.id}')"> Modifier </button>
-            <button class="delete-btn" onclick="deleteParticipant('${doc.id}')"> Supprimer </button>
+            <button class="delete-btn" onclick="deleteParticipant('${doc.id}')"> <img src="icons/trash.png" alt="Supprimer"> </button>
           </div>
         `;
         cardsContainer.appendChild(card);
@@ -157,6 +159,76 @@ function editParticipant(id) {
         document.getElementById("dateInscription").value = dateInscr;
     });
 }
+
+// Paiement
+function participantPayment(id) {
+    db.collection("participants").doc(id).get()
+    .then(doc => {
+        if (!doc.exists) {
+            Swal.fire("Erreur", "Participant introuvable", "error");
+            return;
+        }
+
+        editingId = id;
+
+        document.getElementById("content").style.display = "none";
+        document.getElementById("editPartcipantForm").style.display = "none";
+        document.getElementById("paymentDiv").style.display = "flex";
+
+        const p = doc.data();
+        const paymentsList = document.getElementById("paymentsList");
+        paymentsList.innerHTML = "";
+
+        if (p.payments && p.payments.length > 0) {
+            p.payments.forEach(pay => {
+                const div = document.createElement("div");
+                div.className = "payment-item";
+                const date = pay.date.toDate().toLocaleDateString("fr-FR");
+                div.textContent = `${pay.amount} DA — ${date}`;
+                paymentsList.appendChild(div);
+            });
+        } else {
+            paymentsList.innerHTML = "<em>Aucun paiement</em>";
+        }
+    });
+}
+
+document.getElementById("savePaymentBtn").addEventListener("click", () => {
+    if (!editingId) return;
+
+    const amount = Number(document.getElementById("paymentAmount").value);
+
+    if (!amount || amount <= 0) {
+        Swal.fire("Erreur", "Montant invalide", "error");
+        return;
+    }
+
+    const payment = {
+        amount,
+        date: firebase.firestore.Timestamp.now()
+    };
+
+    db.collection("participants").doc(editingId).update({
+        payments: firebase.firestore.FieldValue.arrayUnion(payment)
+    })
+    .then(() => {
+        Swal.fire("Succès", "Paiement enregistré", "success");
+        document.getElementById("paymentAmount").value = "";
+        participantPayment(editingId); // reload payment history
+    })
+    .catch(err => {
+        console.error(err);
+        Swal.fire("Erreur", "Impossible d'enregistrer le paiement", "error");
+    });
+});
+
+document.getElementById("cancelPaymentBtn").addEventListener("click", () => {
+    document.getElementById("paymentDiv").style.display = "none";
+    document.getElementById("content").style.display = "block";
+    editingId = null;
+});
+
+
 
 const ceintureSelect = document.getElementById("ceinture");
 

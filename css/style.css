@@ -200,6 +200,15 @@ main #canceladdParticipantBtn{
   cursor: pointer;
 }
 
+.paiment-btn{
+  background: rgb(47, 186, 54);
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 .edit-btn {
   background: #1976d2;
   color: white;
@@ -214,7 +223,7 @@ main #canceladdParticipantBtn{
   display: none;
 }
 
-#saveEditParticipantBtn{
+#saveEditParticipantBtn, #savePaymentBtn{
     background-color: var(--primary-color);
     color: var(--bg-color);
     border: none;
@@ -225,12 +234,39 @@ main #canceladdParticipantBtn{
     cursor: pointer;
 }
 
-#cancelEditParticipantBtn{
+#cancelEditParticipantBtn, #cancelPaymentBtn{
     background: transparent;
     border: none;
     outline: none;
     cursor: pointer;
 }
+
+#paymentDiv {
+  display: none;
+  flex-direction: column;
+  /* gap: 15px; */
+}
+
+#paymentDiv h2{
+  margin-bottom: 1rem;
+}
+
+#paymentDiv h3{
+  margin-top: 2rem;
+}
+
+#paymentsList {
+  margin-top: 10px;
+}
+
+.payment-item {
+  padding: 8px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
 
 
 /* Cards hidden on desktop */
@@ -284,5 +320,16 @@ main #canceladdParticipantBtn{
 
   .participant-actions button {
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .participant-actions .delete-btn{
+    width: 50%;
+  }
+
+  .participant-actions img{
+    width: 20px;
   }
 }
