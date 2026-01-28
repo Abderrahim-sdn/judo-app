@@ -68,10 +68,16 @@ function renderParticipants(list) {
         <span class="badge ${p.ceinture}">${p.ceinture}</span>
       </div>
 
-      <div class="participant-info">Groupe : ${p.groupe}</div>
-      <div class="participant-info">
-        Inscrit : ${p.createdAt ? formatDate(p.createdAt.toDate()) : "-"}
+      <div style="margin-bottom: 10px;" >
+        ${
+          isPaidThisMonth(p.payments)
+          ? `<span class="payment-status paid">PAYÉ</span>`
+          : `<span class="payment-status unpaid">NON PAYÉ</span>`
+        }
       </div>
+
+      <div class="participant-info"> Groupe : ${p.groupe} </div>
+      <div class="participant-info"> Inscrit : ${p.createdAt ? formatDate(p.createdAt.toDate()) : "-"} </div>
 
       <div class="participant-actions">
         <button class="paiement-btn" onclick="participantPayment('${p.id}')"> Paiement </button>
@@ -206,6 +212,7 @@ function participantPayment(id) {
 
         document.getElementById("content").style.display = "none";
         document.getElementById("editPartcipantForm").style.display = "none";
+        document.getElementById("searchInput").style.display = "none";
         document.getElementById("paymentDiv").style.display = "flex";
 
         const p = doc.data();
@@ -258,6 +265,8 @@ document.getElementById("savePaymentBtn").addEventListener("click", () => {
 document.getElementById("cancelPaymentBtn").addEventListener("click", () => {
     document.getElementById("paymentDiv").style.display = "none";
     document.getElementById("content").style.display = "block";
+    document.getElementById("searchInput").style.display = "block";
+    loadParticipants();
     editingId = null;
 });
 
@@ -273,6 +282,26 @@ ceintureSelect.addEventListener("change", () => {
         ceintureSelect.classList.add("ceinture-" + ceintureSelect.value);
     }
 });
+
+
+function isPaidThisMonth(payments = []) {
+  if (!payments || payments.length === 0) return false;
+
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  return payments.some(p => {
+    if (!p.date || typeof p.date.toDate !== "function") return false;
+
+    const d = p.date.toDate();
+    return (
+      d.getMonth() === currentMonth &&
+      d.getFullYear() === currentYear
+    );
+  });
+}
+
 
 
 
