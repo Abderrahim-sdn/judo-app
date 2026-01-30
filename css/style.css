@@ -358,3 +358,66 @@ main #canceladdParticipantBtn{
     width: 20px;
   }
 }
+
+
+
+
+/**************************** Dashboard Style ****************************/
+
+
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.2rem;
+  margin-top: 2rem;
+}
+
+.dash-card {
+  background: white;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.dash-card:hover {
+  transform: translateY(-3px);
+}
+
+.dash-title {
+  /* font-size: 14px; */
+  color: #666;
+  margin-bottom: 10px;
+
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.dash-value {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+/* Colors */
+.revenue .dash-value { color: var(--primary-color); }
+.paid .dash-value { color: #2ecc71; }
+.unpaid .dash-value { color: #e74c3c; }
+.total .dash-value { color: #6366f1; }
+
+/* Chart style */
+.chart-container {
+  margin-top: 40px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.chart-container canvas{
+  margin-bottom: 3rem
+}
+
+.chart-container h3{
+  margin-bottom: 12px;
+  color: #666;
+}

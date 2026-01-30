@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="images/logo.png">
+  <title>Tableau de bord</title>
+</head>
+<body>
+
+  <header class="head">
+    <img src="images/logo.png" alt="Logo">
+  </header>
+
+  
+  <main>
+
+    <h2>Tableau de bord</h2>
+
+    <div class="dashboard">
+
+        <div class="dash-card revenue">
+            <div class="dash-title">Revenus du mois</div>
+            <div class="dash-value" id="monthlyRevenue"></div>
+        </div>
+
+        <div class="dash-card paid">
+            <div class="dash-title">Participants Payés</div>
+            <div class="dash-value" id="paidCount"></div>
+        </div>
+
+        <div class="dash-card unpaid">
+            <div class="dash-title">Participants Non Payés</div>
+            <div class="dash-value" id="unpaidCount"></div>
+        </div>
+
+        <div class="dash-card total">
+            <div class="dash-title">Total Participants</div>
+            <div class="dash-value" id="totalCount"></div>
+        </div>
+
+    </div>
+
+    <div class="chart-container">
+        <h3>Graphique des revenus</h3>
+        <canvas id="revenueChart"></canvas>
+
+        <h3>Nouveaux participants</h3>
+        <canvas id="newParticipantsChart" height="120"></canvas>
+
+        <h3>Répartition des Ceintures</h3>
+        <canvas id="beltChart"></canvas>
+    </div>
+
+  </main>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script src="js/dashboard.js"></script>
+    
+</body>
+</html>
