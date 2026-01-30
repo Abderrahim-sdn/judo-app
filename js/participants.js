@@ -11,11 +11,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-firebase.auth().onAuthStateChanged(user => {
-  if (!user) {
-    window.location.href = "login.html";
-  }
-});
+const user = JSON.parse(localStorage.getItem("loggedUser"));
+
+if (!user) {
+  window.location.href = "login.html";
+}
 
 
 let allParticipants = [];

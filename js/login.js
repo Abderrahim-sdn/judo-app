@@ -1,25 +1,49 @@
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyBr7NRjf_iskyvsB8IjzNiC4dUdmSTIe94",
   authDomain: "judo-salle-management.firebaseapp.com",
   projectId: "judo-salle-management",
+  storageBucket: "judo-salle-management.firebasestorage.app",
+  messagingSenderId: "363794678498",
+  appId: "1:363794678498:web:61cba23cdbad834d01d4bb"
 };
 
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
+const db = firebase.firestore();
 
-// LOGIN
 document.getElementById("loginBtn").addEventListener("click", () => {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+    login();
+});
+
+function login() {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
   const errorMsg = document.getElementById("loginError");
 
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => {
-      window.location.href = "participantsList.html"; // redirect after login
+  if (!username || !password) {
+    errorMsg.textContent = "Remplissez tous les champs.";
+    return;
+  }
+
+  db.collection("users")
+    .where("username", "==", username)
+    .where("password", "==", password)
+    .get()
+    .then(snapshot => {
+      if (snapshot.empty) {
+        errorMsg.textContent = "Nom d'utilisateur ou mot de passe incorrect.";
+        return;
+      }
+
+      const userData = snapshot.docs[0].data();
+
+      // Save session
+      localStorage.setItem("loggedUser", JSON.stringify(userData));
+
+      // Redirect
+      window.location.href = "participantsList.html";
     })
     .catch(err => {
-      errorMsg.textContent = "Email ou mot de passe incorrect";
-      console.error(err.message);
+      console.error(err);
+      errorMsg.textContent = "Erreur de connexion.";
     });
-});
+}
