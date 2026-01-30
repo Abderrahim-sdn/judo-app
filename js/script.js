@@ -15,6 +15,12 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "login.html";
+  }
+});
+
 
 // Submit participant
 const form = document.getElementById("participantForm");
@@ -78,6 +84,16 @@ ceintureSelect.addEventListener("change", () => {
     }
 });
 
+
+
+
+// TopBar
+const current = window.location.pathname.split("/").pop();
+document.querySelectorAll(".nav-btn").forEach(btn => {
+    if (btn.getAttribute("href") === current) {
+        btn.classList.add("active");
+    }
+});
 
 
 

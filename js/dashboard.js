@@ -12,8 +12,16 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "login.html";
+  }
+});
+
+
 let revenueChartInstance = null;
 let newParticipantsChartInstance = null;
+let beltChartInstance = null;
 
 
 // LOAD DATA FROM FIRESTORE
@@ -35,7 +43,6 @@ function loadDashboardData() {
       alert("Impossible de charger les données. Vérifiez la connexion ou la base de données.");
   });
 }
-
 
 
 function updateDashboard(participants) {
@@ -181,9 +188,14 @@ function renderNewParticipantsChart(participants) {
     newParticipantsData.push(count);
   }
 
+
   const ctx = document.getElementById("newParticipantsChart").getContext("2d");
 
-  new Chart(ctx, {
+  if (newParticipantsChartInstance) {
+    newParticipantsChartInstance.destroy();
+  }
+
+  newParticipantsChartInstance = new Chart(ctx, {
     type: "bar",
     data: {
       labels: monthsLabels,
@@ -239,7 +251,11 @@ function renderBeltChart(participants) {
 
   const backgroundColors = labels.map(label => beltColors[label] || "#e0e0e0");
 
-  new Chart(ctx, {
+  if (beltChartInstance) {
+  beltChartInstance.destroy();
+}
+
+beltChartInstance = new Chart(ctx, {
     type: "doughnut",
     data: {
       labels: labels,
@@ -262,6 +278,13 @@ function renderBeltChart(participants) {
 }
 
 
+// TopBar
+const current = window.location.pathname.split("/").pop();
+document.querySelectorAll(".nav-btn").forEach(btn => {
+    if (btn.getAttribute("href") === current) {
+        btn.classList.add("active");
+    }
+});
 
 // Run when page loads
 window.addEventListener("DOMContentLoaded", loadDashboardData);
