@@ -14,7 +14,8 @@ const urlsToCache = [
 
   // JS
   '/js/dashboard.js',
-  '/js/login.js',
+  '/js/install.js', 
+  '/js/login.js', 
   '/js/manifest.js',
   '/js/participants.js',
   '/js/script.js',
