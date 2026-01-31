@@ -40,6 +40,7 @@ function loadParticipants() {
       });
 
       renderParticipants(allParticipants);
+      hideLoadingSkeleton();
     });
 }
 
@@ -82,14 +83,14 @@ function renderParticipants(list) {
         }
       </div>
 
-      <div class="participant-info"> Groupe : ${p.groupe} </div>
+      <!--<div class="participant-info"> Groupe : ${p.groupe} </div>  -->
       <div class="participant-info"> Inscrit : ${p.createdAt ? formatDate(p.createdAt.toDate()) : "-"} </div>
 
       <div class="participant-actions">
         <button class="paiement-btn" onclick="participantPayment('${p.id}')"> Paiement </button>
         <button class="edit-btn" onclick="editParticipant('${p.id}')"> Modifier </button>
         <button class="delete-btn" onclick="deleteParticipant('${p.id}')">
-          <img src="icons/trash.png">
+          <img src="icons/trash-red.png">
         </button>
       </div>
     `;
@@ -277,7 +278,21 @@ document.getElementById("cancelPaymentBtn").addEventListener("click", () => {
 });
 
 
+function hideLoadingSkeleton() {
+  document.getElementById("loadingSkeleton").style.display = "none";
 
+  const isMobile = window.innerWidth <= 768;
+
+  if (isMobile) {
+    document.getElementById("participantsCards").style.display = "block";
+    document.getElementById("participantsBody").style.display = "none";
+  } else {
+    document.getElementById("participantsBody").style.display = "table-row-group";
+    document.getElementById("participantsCards").style.display = "none";
+  }
+}
+
+// Ceintures
 const ceintureSelect = document.getElementById("ceinture");
 
 ceintureSelect.addEventListener("change", () => {
@@ -289,6 +304,28 @@ ceintureSelect.addEventListener("change", () => {
     }
 });
 
+
+const filterCeinture = document.getElementById("filterCeinture");
+
+filterCeinture.addEventListener("change", () => {
+  const value = filterCeinture.value;
+
+  // Remove old belt classes
+  filterCeinture.classList.remove(
+    "ceinture-blanche",
+    "ceinture-jaune",
+    "ceinture-orange",
+    "ceinture-verte",
+    "ceinture-bleue",
+    "ceinture-marron",
+    "ceinture-noire"
+  );
+
+  // Add new class if selected
+  if (value) {
+    filterCeinture.classList.add("ceinture-" + value);
+  }
+});
 
 function isPaidThisMonth(payments = []) {
   if (!payments || payments.length === 0) return false;
@@ -369,6 +406,56 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
         btn.classList.add("active");
     }
 });
+
+// Filter
+const filterBtn = document.getElementById("filterBtn");
+const filterIcon = document.getElementById("filterIcon");
+const filterPanel = document.getElementById("filterPanel");
+const applyFiltersBtn = document.getElementById("applyFilters");
+const resetFiltersBtn = document.getElementById("resetFilters");
+
+// Show filter panel
+filterBtn.addEventListener("click", () => {
+  filterPanel.classList.toggle("active");
+});
+
+// Apply filters
+applyFiltersBtn.addEventListener("click", () => {
+  const groupe = document.getElementById("filterGroupe").value;
+  const ceinture = document.getElementById("filterCeinture").value;
+
+  const filtered = allParticipants.filter(p => {
+    return (groupe === "" || p.groupe === groupe) &&
+           (ceinture === "" || p.ceinture === ceinture);
+  });
+
+  renderParticipants(filtered);
+  filterBtn.style.backgroundColor = "#0088CC";
+  filterIcon.src = "icons/filter-white.png";
+  filterPanel.classList.remove("active");
+});
+
+// Reset filters
+resetFiltersBtn.addEventListener("click", () => {
+  document.getElementById("filterGroupe").value = "";
+  document.getElementById("filterCeinture").value = "";
+
+  filterCeinture.classList.remove(
+    "ceinture-blanche",
+    "ceinture-jaune",
+    "ceinture-orange",
+    "ceinture-verte",
+    "ceinture-bleue",
+    "ceinture-marron",
+    "ceinture-noire"
+  );
+
+  renderParticipants(allParticipants);
+  filterBtn.style.backgroundColor = "white";
+  filterIcon.src = "icons/filter.png";
+  filterPanel.classList.remove("active");
+});
+
 
 function logout() {
   localStorage.removeItem("loggedUser");

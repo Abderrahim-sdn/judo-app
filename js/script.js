@@ -30,11 +30,11 @@ form.addEventListener("submit", (e) => {
 });
 
 // Annuler btn
-const cancelBtn = document.getElementById("canceladdParticipantBtn");
-cancelBtn.addEventListener("click", () => {
-  form.reset();
-  ceintureSelect.className = ""; // reset belt color
-});
+// const cancelBtn = document.getElementById("canceladdParticipantBtn");
+// cancelBtn.addEventListener("click", () => {
+//   form.reset();
+//   ceintureSelect.className = ""; // reset belt color
+// });
 
 
 

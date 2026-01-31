@@ -13,21 +13,9 @@
   <header class="head">
     <img src="images/logo.png" alt="Logo">
 
-    <nav class="topnav">
-      <a href="addParticipant.html" class="nav-btn" title="Ajouter">
-        ➕
-      </a>
-      <a href="participantsList.html" class="nav-btn" title="Participants">
-        👥
-      </a>
-      <a href="dashboard.html" class="nav-btn" title="Dashboard">
-        📊
-      </a>
-
-      <div class="logout">
-        <button onclick="logout()" class="logout-btn"> <img src="icons/logout-white.png" alt="Deconnexion"> </button>
-      </div>
-    </nav>
+    <div class="logout">
+      <button onclick="logout()" class="logout-btn"> <img src="icons/logout-white.png" alt="Deconnexion"> </button>
+    </div>
 
   </header>
 
@@ -81,11 +69,25 @@
     </div>
 
     <div class="buttons">
-      <button id="canceladdParticipantBtn">Annuler</button>
+      <!-- <button id="canceladdParticipantBtn">Annuler</button> -->
       <button type="submit" id="addParticipantBtn">Ajouter</button>
     </div>
 
-</form>
+  </form>
+
+    <nav class="navbar">
+        <a href="participantsList.html" class="nav-btn" title="Participants">
+          <img src="icons/list.png">
+        </a>
+
+        <a href="addParticipant.html" class="nav-btn" title="Ajouter">
+          <img src="icons/add-white.png">
+        </a>
+
+        <a href="dashboard.html" class="nav-btn" title="Dashboard">
+          <img src="icons/dashboard.png">
+        </a>
+    </nav>
 
   </main>
 

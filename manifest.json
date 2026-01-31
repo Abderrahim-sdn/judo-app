@@ -1,7 +1,7 @@
 {
   "name": "Kuwate El Fennec",
   "short_name": "Kuwate El Fennec",
-  "start_url": "/index.html",
+  "start_url": "/participantsList.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "icons": [

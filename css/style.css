@@ -33,7 +33,7 @@ body{
 
 main{
     margin-top: 2rem;
-    margin-bottom: 2rem;
+    margin-bottom: 4rem;
     background-color: #FFFFFF;
     border: 1px solid #E0E0E0;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -114,10 +114,7 @@ select.ceinture-noire {
 }
 
 
-/* main form input, main form select{
-    font-size: 1.1rem;
-    padding: 5px 10px;
-} */
+
 
 main .buttons{
     display: flex;
@@ -178,27 +175,31 @@ main #canceladdParticipantBtn{
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 0.85rem;
-  font-weight: bold;
+  font-weight: 400;
   display: inline-block;
 }
 
 /* Ceinture badges */
 .badge{padding: 5px 10px;}
-.badge.blanche { background: #f5f5f5; border: 2px solid #ccc;}
-.badge.jaune { background: #fff59d; border: 2px solid #fbc02d;}
-.badge.orange { background: #ffcc80; border: 2px solid #fb8c00;}
-.badge.verte { background: #a5d6a7; border: 2px solid #388e3c;}
-.badge.bleue { background: #90caf9; border: 2px solid #1976d2;}
-.badge.marron { background: #bcaaa4; border: 2px solid #5d4037;}
-.badge.noire { background: #212121; color: white; border: 2px solid #000;}
+.badge.blanche { background: #f5f5f5; color: #363636;}
+.badge.jaune { background: #fff59d; color: #fbc02d;}
+.badge.orange { background: #ffcc80; color: #fb8c00;}
+.badge.verte { background: #a5d6a7; color: #388e3c;}
+.badge.bleue { background: #90caf9; color: #1976d2;}
+.badge.marron { background: #bcaaa4; color: #5d4037;} 
+.badge.noire { background: #212121; color: white;}
 
 .delete-btn {
-  background: #e53935;
-  color: white;
-  border: none;
+  border: solid 1px #e53935;
+  background-color: white;
+  color: #e53935;
   padding: 5px 8px;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.delete-btn img{
+  width: 20px;
 }
 
 .paiement-btn{
@@ -211,9 +212,9 @@ main #canceladdParticipantBtn{
 }
 
 .edit-btn {
-  background: #6366f1;
-  color: white;
-  border: none;
+  border: solid 1px #007bff;
+  color: #007bff;
+  background-color: white;
   padding: 5px 8px;
   border-radius: 4px;
   cursor: pointer;
@@ -268,13 +269,63 @@ main #canceladdParticipantBtn{
   font-size: 0.9rem;
 }
 
-#searchInput{
+.search-div{
   margin-top: 2rem;
-  padding:8px; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+#searchInput{
+  padding: 10px; 
   width:100%; 
+  border-radius: 5px;
+  border: none;
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
   max-width:300px;
 }
 
+.filter-btn{
+  background: #ffffff;
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.filter-btn img{
+  width: 20px;
+}
+
+/* Filter panel popup */
+.filter-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+  padding: 20px;
+  border-radius: 20px 20px 0 0;
+  display: none;
+  z-index: 1000;
+}
+
+.filter-panel.active {
+  display: block;
+}
+
+.filter-panel .form-group{
+  margin-top: 1rem;
+}
+
+#applyFilters{
+  background-color: var(--primary-color);
+  color: white;
+}
 
 
 .payment-status {
@@ -317,7 +368,8 @@ main #canceladdParticipantBtn{
     background: #fff;
     padding: 1rem;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.268);
   }
 
   .participant-header {
@@ -427,7 +479,6 @@ main #canceladdParticipantBtn{
 
 /***************************** TopBar Style *****************************/
 
-
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -436,21 +487,26 @@ main #canceladdParticipantBtn{
   background: white;
 }
 
-/* .logo {
-  width: 60px;
-} */
-
-.topnav {
+.navbar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #f3f4f6;
-  padding: 6px;
-  border-radius: 14px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  justify-content: space-evenly;
+  gap: 15px;
+  background: var(--bg-color);
+  padding: 10px;
+  border-radius: 5px 5px 0 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.496);
 }
 
 .nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
   font-size: 20px;
   padding: 10px 14px;
@@ -458,6 +514,10 @@ main #canceladdParticipantBtn{
   background: white;
   color: #111827;
   transition: 0.2s;
+}
+
+.nav-btn img{
+  width: 20px;
 }
 
 .nav-btn.active {
@@ -468,9 +528,6 @@ main #canceladdParticipantBtn{
 
 
 .logout-btn{
-    /* position: absolute;
-    top: 1rem;
-    right: 1rem; */
     background-color: rgb(192, 79, 79);
     outline: none;
     border: none;
@@ -533,12 +590,33 @@ main #canceladdParticipantBtn{
   cursor: pointer;
 }
 
-.btn.primary {
-  background-color: #22c55e;
+.btn.install {
+  background-color: var(--primary-color);
   color: white;
+  font-size: 1.1rem;
 }
 
-.btn.install {
-  background-color: #6366f1;
-  color: white;
+
+
+/********* Skeleton animation ********/
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-card {
+  height: 20px;
+  background: linear-gradient(90deg, #eeeeee 25%, #dddddd 50%, #eeeeee 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 6px;
+}
+
+.skeleton-card {
+  height: 155px;
+}
+
+/* Hide cards while loading */
+#participantsCards {
+  display: none;
 }
