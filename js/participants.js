@@ -219,7 +219,7 @@ function participantPayment(id) {
 
         document.getElementById("content").style.display = "none";
         document.getElementById("editPartcipantForm").style.display = "none";
-        document.getElementById("searchInput").style.display = "none";
+        document.getElementById("searchDiv").style.display = "none";
         document.getElementById("paymentDiv").style.display = "flex";
 
         const p = doc.data();
@@ -272,7 +272,7 @@ document.getElementById("savePaymentBtn").addEventListener("click", () => {
 document.getElementById("cancelPaymentBtn").addEventListener("click", () => {
     document.getElementById("paymentDiv").style.display = "none";
     document.getElementById("content").style.display = "block";
-    document.getElementById("searchInput").style.display = "block";
+    document.getElementById("searchDiv").style.display = "flex";
     loadParticipants();
     editingId = null;
 });
