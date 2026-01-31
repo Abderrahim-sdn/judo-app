@@ -286,5 +286,16 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
     }
 });
 
+function logout() {
+  localStorage.removeItem("loggedUser");
+  window.location.href = "login.html";
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(() => console.log('Service Worker Registered'))
+    .catch(err => console.log('SW registration failed:', err));
+}
+
 // Run when page loads
 window.addEventListener("DOMContentLoaded", loadDashboardData);

@@ -370,7 +370,10 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
     }
 });
 
-
+function logout() {
+  localStorage.removeItem("loggedUser");
+  window.location.href = "login.html";
+}
 
 function formatDate(date) {
   const day = String(date.getDate()).padStart(2, "0");
@@ -380,6 +383,10 @@ function formatDate(date) {
   return `${day}/${month}/${year}`;
 }
 
-
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(() => console.log('Service Worker Registered'))
+    .catch(err => console.log('SW registration failed:', err));
+}
 
 loadParticipants();

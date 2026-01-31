@@ -442,6 +442,7 @@ main #canceladdParticipantBtn{
 
 .topnav {
   display: flex;
+  align-items: center;
   gap: 10px;
   background: #f3f4f6;
   padding: 6px;
@@ -463,4 +464,26 @@ main #canceladdParticipantBtn{
   background: #0ea5e9;
   color: white;
   box-shadow: 0 4px 8px rgba(14,165,233,0.3);
+}
+
+
+.logout-btn{
+    /* position: absolute;
+    top: 1rem;
+    right: 1rem; */
+    background-color: rgb(192, 79, 79);
+    outline: none;
+    border: none;
+    color: white;
+    padding: 10px 12px;
+    border-radius: 5px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.logout-btn img{
+  width: 20px;
 }

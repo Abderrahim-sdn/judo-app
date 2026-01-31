@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Roboto", sans-serif;
+    font-family: "Roboto";
 }
 
 :root{
@@ -16,7 +16,6 @@
   align-items: center;
   height: 100vh;
   background: linear-gradient(135deg, #0ea5e9, #6366f1);
-  font-family: sans-serif;
 }
 
 .login-card {
