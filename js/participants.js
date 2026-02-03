@@ -280,7 +280,10 @@ document.getElementById("cancelPaymentBtn").addEventListener("click", () => {
 
 function hideLoadingSkeleton() {
   document.getElementById("loadingSkeleton").style.display = "none";
+  updateLayout();
+}
 
+function updateLayout() {
   const isMobile = window.innerWidth <= 768;
 
   if (isMobile) {
@@ -291,6 +294,9 @@ function hideLoadingSkeleton() {
     document.getElementById("participantsCards").style.display = "none";
   }
 }
+
+window.addEventListener("resize", updateLayout);
+
 
 // Ceintures
 const ceintureSelect = document.getElementById("ceinture");
@@ -477,3 +483,4 @@ if ('serviceWorker' in navigator) {
 }
 
 loadParticipants();
+updateLayout();
