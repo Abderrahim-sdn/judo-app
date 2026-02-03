@@ -101,12 +101,12 @@ function renderParticipants(list) {
 
 // search logic
 document.getElementById("searchInput").addEventListener("input", (e) => {
-  const value = e.target.value.toLowerCase();
+  const value = e.target.value.toLowerCase().trim();
 
-  const filtered = allParticipants.filter(p =>
-    p.nom.toLowerCase().includes(value) ||
-    p.prenom.toLowerCase().includes(value)
-  );
+  const filtered = allParticipants.filter(p => {
+    const fullName = (p.nom + " " + p.prenom).toLowerCase();
+    return fullName.includes(value);
+  });
 
   renderParticipants(filtered);
 });
@@ -483,7 +483,7 @@ if ('serviceWorker' in navigator) {
 }
 
 
-const topBar = document.getElementById("top");
+const searchDiv = document.getElementById("searchDiv");
 
 let lastScrollY = window.scrollY;
 
@@ -492,16 +492,29 @@ window.addEventListener("scroll", () => {
 
   // If scrolling DOWN → hide
   if (currentScrollY > lastScrollY && currentScrollY > 80) {
-    topBar.classList.add("hide");
+    searchDiv.classList.add("hide");
   }
   // If scrolling UP → show
   else if (currentScrollY < lastScrollY) {
-    topBar.classList.remove("hide");
+    searchDiv.classList.remove("hide");
   }
 
   lastScrollY = currentScrollY;
 });
 
+
+const searchInput = document.getElementById("searchInput");
+
+searchInput.addEventListener("input", () => {
+  scrollToTopSmooth();
+});
+
+function scrollToTopSmooth() {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
 
 loadParticipants();
 updateLayout();

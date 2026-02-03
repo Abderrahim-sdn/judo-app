@@ -270,7 +270,7 @@ main #canceladdParticipantBtn{
 }
 
 .search-div{
-  margin-top: 2rem;
+  margin-top: 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -293,6 +293,7 @@ main #canceladdParticipantBtn{
   border: none;
   padding: 8px 10px;
   border-radius: 8px;
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
   cursor: pointer;
 }
 
@@ -479,9 +480,9 @@ main #canceladdParticipantBtn{
 
 /***************************** NavBar Style *****************************/
 
-#top {
+#searchDiv {
   position: sticky;
-  top: 0;
+  top: 1rem;
   z-index: 1000;
   border-radius: 5px;
   background-color: #FFFFFF;
@@ -490,18 +491,9 @@ main #canceladdParticipantBtn{
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
-#top.hide {
+#searchDiv.hide {
   transform: translateY(-100%);
   opacity: 0;
-}
-
-
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  background: white;
 }
 
 .navbar {
