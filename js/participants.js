@@ -223,6 +223,9 @@ function participantPayment(id) {
         document.getElementById("paymentDiv").style.display = "flex";
 
         const p = doc.data();
+
+        document.getElementById("paymentParticipantName").textContent = p.nom + " " + p.prenom;
+
         const paymentsList = document.getElementById("paymentsList");
         paymentsList.innerHTML = "";
 
