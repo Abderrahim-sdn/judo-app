@@ -32,7 +32,7 @@ body{
 }
 
 main{
-    margin-top: 2rem;
+    margin-top: 1rem;
     margin-bottom: 4rem;
     background-color: #FFFFFF;
     border: 1px solid #E0E0E0;
@@ -478,6 +478,23 @@ main #canceladdParticipantBtn{
 
 
 /***************************** NavBar Style *****************************/
+
+#top {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-radius: 5px;
+  background-color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 1.3rem 15px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#top.hide {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
 
 .topbar {
   display: flex;

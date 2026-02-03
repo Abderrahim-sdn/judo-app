@@ -482,5 +482,26 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.log('SW registration failed:', err));
 }
 
+
+const topBar = document.getElementById("top");
+
+let lastScrollY = window.scrollY;
+
+window.addEventListener("scroll", () => {
+  const currentScrollY = window.scrollY;
+
+  // If scrolling DOWN → hide
+  if (currentScrollY > lastScrollY && currentScrollY > 80) {
+    topBar.classList.add("hide");
+  }
+  // If scrolling UP → show
+  else if (currentScrollY < lastScrollY) {
+    topBar.classList.remove("hide");
+  }
+
+  lastScrollY = currentScrollY;
+});
+
+
 loadParticipants();
 updateLayout();
