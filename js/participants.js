@@ -485,7 +485,7 @@ resetFiltersBtn.addEventListener("click", () => {
 
 function logout() {
   localStorage.removeItem("loggedUser");
-  window.location.href = "login.html";
+  window.location.replace("login.html");
 }
 
 function formatDate(date) {
