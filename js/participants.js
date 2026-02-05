@@ -101,14 +101,17 @@ function renderParticipants(list) {
 
 // search logic
 document.getElementById("searchInput").addEventListener("input", (e) => {
-  const value = e.target.value.toLowerCase().trim();
+  const searchValue = e.target.value.toLowerCase().trim().split(/\s+/);
 
   const filtered = allParticipants.filter(p => {
-    const fullName = (p.nom + " " + p.prenom).toLowerCase();
-    return fullName.includes(value);
+    const fullName = `${p.nom} ${p.prenom}`.toLowerCase();
+
+    return searchValue.every(word => fullName.includes(word));
   });
 
   renderParticipants(filtered);
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
 
@@ -432,34 +435,38 @@ filterBtn.addEventListener("click", () => {
 applyFiltersBtn.addEventListener("click", () => {
   const groupe = document.getElementById("filterGroupe").value;
   const ceinture = document.getElementById("filterCeinture").value;
+  const paymentStatus = document.getElementById("filterPayment").value;
 
   const filtered = allParticipants.filter(p => {
-    return (groupe === "" || p.groupe === groupe) &&
-           (ceinture === "" || p.ceinture === ceinture);
+    const matchGroupe = groupe === "" || p.groupe === groupe;
+    const matchCeinture = ceinture === "" || p.ceinture === ceinture;
+
+    let matchPayment = true;
+    if (paymentStatus === "paid") {
+      matchPayment = isPaidThisMonth(p.payments);
+    } else if (paymentStatus === "unpaid") {
+      matchPayment = !isPaidThisMonth(p.payments);
+    }
+
+    return matchGroupe && matchCeinture && matchPayment;
   });
 
   renderParticipants(filtered);
+
   filterBtn.style.backgroundColor = "#0088CC";
   filterIcon.src = "icons/filter-white.png";
   filterPanel.classList.remove("active");
 });
 
+
 // Reset filters
 resetFiltersBtn.addEventListener("click", () => {
   document.getElementById("filterGroupe").value = "";
   document.getElementById("filterCeinture").value = "";
-
-  filterCeinture.classList.remove(
-    "ceinture-blanche",
-    "ceinture-jaune",
-    "ceinture-orange",
-    "ceinture-verte",
-    "ceinture-bleue",
-    "ceinture-marron",
-    "ceinture-noire"
-  );
+  document.getElementById("filterPayment").value = "";
 
   renderParticipants(allParticipants);
+
   filterBtn.style.backgroundColor = "white";
   filterIcon.src = "icons/filter.png";
   filterPanel.classList.remove("active");
