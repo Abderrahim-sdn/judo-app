@@ -167,6 +167,8 @@ function editParticipant(id) {
 
         const p = doc.data();
         editingId = id; // set editing ID
+        history.pushState({ editOpen: true }, "");
+
 
         // Show form
         document.getElementById("content").style.display = "none";
@@ -211,6 +213,8 @@ function editParticipant(id) {
 
 // Paiement
 function participantPayment(id) {
+    history.pushState({ paymentOpen: true }, "");
+
     db.collection("participants").doc(id).get()
     .then(doc => {
         if (!doc.exists) {
@@ -428,6 +432,12 @@ const resetFiltersBtn = document.getElementById("resetFilters");
 
 // Show filter panel
 filterBtn.addEventListener("click", () => {
+  const isOpening = !filterPanel.classList.contains("active");
+
+  if (isOpening) {
+    history.pushState({ filterOpen: true }, "");
+  }
+
   filterPanel.classList.toggle("active");
 });
 
@@ -525,6 +535,43 @@ function scrollToTopSmooth() {
     behavior: "smooth"
   });
 }
+
+// Back erow logig
+let lastBack = 0;
+window.addEventListener("popstate", function () {
+
+  // If payment is open → close it
+  if (document.getElementById("paymentDiv").style.display === "flex") {
+    document.getElementById("paymentDiv").style.display = "none";
+    document.getElementById("content").style.display = "block";
+    document.getElementById("searchDiv").style.display = "flex";
+    return;
+  }
+
+  // If edit form open → close it
+  if (document.getElementById("editPartcipantForm").style.display === "flex") {
+    document.getElementById("editPartcipantForm").style.display = "none";
+    document.getElementById("content").style.display = "block";
+    return;
+  }
+
+  // If filter panel open → close it
+  if (document.getElementById("filterPanel").classList.contains("active")) {
+    document.getElementById("filterPanel").classList.remove("active");
+    return;
+  }
+
+const now = new Date().getTime();
+if (now - lastBack < 2000) {
+  history.back();
+} else {
+  alert("Appuyez encore pour quitter");
+  lastBack = now;
+  history.pushState(null, "");
+}
+
+});
+
 
 loadParticipants();
 updateLayout();
