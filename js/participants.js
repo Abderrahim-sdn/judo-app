@@ -105,7 +105,7 @@ document.getElementById("searchInput").addEventListener("input", (e) => {
 
   const filtered = allParticipants.filter(p => {
     // const fullName = `${p.nom} ${p.prenom}`.toLowerCase();
-    const fullText = (p.nom + " " + p.prenom + " " + p.phone).toLowerCase();
+    const fullText = (p.nom + " " + p.prenom + " " + (p.phone || "").replace(/\D/g, '')).toLowerCase();
 
     return searchValue.every(word => fullText.includes(word));
   });
