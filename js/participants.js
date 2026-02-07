@@ -55,6 +55,7 @@ function renderParticipants(list) {
     tr.innerHTML = `
       <td>${p.nom}</td>
       <td>${p.prenom}</td>
+      <td>${p.phone || "-"}</td>
       <td>${p.groupe}</td>
       <td><span class="badge ${p.ceinture}">${p.ceinture}</span></td>
       <td>${p.createdAt ? formatDate(p.createdAt.toDate()) : "-"}</td>
@@ -77,14 +78,13 @@ function renderParticipants(list) {
 
       <div style="margin-bottom: 10px;" >
         ${
-          isPaidThisMonth(p.payments)
-          ? `<span class="payment-status paid">PAYÉ</span>`
-          : `<span class="payment-status unpaid">NON PAYÉ</span>`
+          isPaidThisMonth(p.payments) ? `<span class="payment-status paid">PAYÉ</span>` : `<span class="payment-status unpaid">NON PAYÉ</span>`
         }
       </div>
 
       <!--<div class="participant-info"> Groupe : ${p.groupe} </div>  -->
-      <div class="participant-info"> Inscrit : ${p.createdAt ? formatDate(p.createdAt.toDate()) : "-"} </div>
+      <div class="participant-info">Téléphone : ${p.phone || "-"} </div>
+      <div class="participant-info">Inscrit : ${p.createdAt ? formatDate(p.createdAt.toDate()) : "-"} </div>
 
       <div class="participant-actions">
         <button class="paiement-btn" onclick="participantPayment('${p.id}')"> Paiement </button>
@@ -104,9 +104,10 @@ document.getElementById("searchInput").addEventListener("input", (e) => {
   const searchValue = e.target.value.toLowerCase().trim().split(/\s+/);
 
   const filtered = allParticipants.filter(p => {
-    const fullName = `${p.nom} ${p.prenom}`.toLowerCase();
+    // const fullName = `${p.nom} ${p.prenom}`.toLowerCase();
+    const fullText = (p.nom + " " + p.prenom + " " + p.phone).toLowerCase();
 
-    return searchValue.every(word => fullName.includes(word));
+    return searchValue.every(word => fullText.includes(word));
   });
 
   renderParticipants(filtered);
@@ -176,6 +177,7 @@ function editParticipant(id) {
 
         document.getElementById("nom").value = p.nom || "";
         document.getElementById("prenom").value = p.prenom || "";
+        document.getElementById("phone").value = p.phone || "";
 
         let dateNaiss = "";
         if (p.dateNaissance) {
@@ -283,6 +285,7 @@ document.getElementById("cancelPaymentBtn").addEventListener("click", () => {
     document.getElementById("paymentDiv").style.display = "none";
     document.getElementById("content").style.display = "block";
     document.getElementById("searchDiv").style.display = "flex";
+    document.getElementById("searchInput").value = "";
     loadParticipants();
     editingId = null;
 });
@@ -375,6 +378,7 @@ form.addEventListener("submit", (e) => {
     const nom = document.getElementById("nom").value.trim();
     const prenom = document.getElementById("prenom").value.trim();
     const dateNaissanceValue = document.getElementById("dateNaissance").value;
+    const phone = document.getElementById("phone").value.trim();
     const groupe = document.getElementById("groupe").value;
     const ceinture = document.getElementById("ceinture").value;
     const dateInscriptionValue = document.getElementById("dateInscription").value;
@@ -388,6 +392,7 @@ form.addEventListener("submit", (e) => {
         nom,
         prenom,
         dateNaissance,
+        phone,
         groupe,
         ceinture,
         createdAt
@@ -511,7 +516,7 @@ window.addEventListener("scroll", () => {
   const currentScrollY = window.scrollY;
 
   // If scrolling DOWN → hide
-  if (currentScrollY > lastScrollY && currentScrollY > 80) {
+  if (currentScrollY > lastScrollY && currentScrollY > 100) {
     searchDiv.classList.add("hide");
   }
   // If scrolling UP → show

@@ -42,7 +42,8 @@ form.addEventListener("submit", (e) => {
 function addParticipant() {
     const nom = document.getElementById("nom").value;
     const prenom = document.getElementById("prenom").value;
-    const dateNaissance = document.getElementById("dateNaissance").value; 
+    const dateNaissance = document.getElementById("dateNaissance").value;
+    const phoneInput = document.getElementById("phone").value.trim(); 
     const groupe = document.getElementById("groupe").value; 
     const ceinture = document.getElementById("ceinture").value;
     const dateInscriptionInput = document.getElementById("dateInscription");
@@ -51,13 +52,14 @@ function addParticipant() {
     if (dateInscriptionInput.value) {
         createdAt = new Date(dateInscriptionInput.value + "T00:00:00"); // convert YYYY-MM-DD to Date
     } else {
-        createdAt = new Date(); // default to today
+        createdAt = new Date();
     }
 
     db.collection("participants").add({
         nom: nom,
         prenom: prenom,
         dateNaissance: dateNaissance,
+        phone: phoneInput,
         groupe: groupe,
         ceinture: ceinture,
         createdAt: createdAt
@@ -69,7 +71,7 @@ function addParticipant() {
             draggable: true
         });
     });
-    cancelBtn.click();
+    // cancelBtn.click();
 }
 
 
