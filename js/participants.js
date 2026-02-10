@@ -146,12 +146,6 @@ function deleteParticipant(id) {
                 Swal.fire("Erreur", "Impossible de supprimer le participant.", "error");
                 console.error(err);
             });
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-            swalWithBootstrapButtons.fire({
-                title: "Annulé",
-                text: "Vous avez annulé",
-                icon: "error"
-            });
         }
     });
 }
@@ -415,8 +409,6 @@ function deletePayment(participantId, paymentId) {
                 console.error(err);
                 Swal.fire("Erreur", "Impossible de supprimer le paiement.", "error");
             });
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-            Swal.fire("Annulé", "Vous avez annulé la suppression", "info");
         }
     });
 }
