@@ -224,6 +224,25 @@ function participantPayment(id) {
             return;
         }
 
+        const participant = doc.data();
+
+        // Assign unique IDs to old payments if missing
+        if (participant.payments && participant.payments.length > 0) {
+          let updated = false;
+
+          participant.payments = participant.payments.map(p => {
+            if (!p.id) {
+              p.id = Date.now().toString() + Math.random();
+              updated = true;
+            }
+            return p;
+          });
+
+          if (updated) {
+            db.collection("participants").doc(id).update({ payments: participant.payments });
+          }
+        }
+
         editingId = id;
 
         document.getElementById("content").style.display = "none";
@@ -239,35 +258,48 @@ function participantPayment(id) {
         paymentsList.innerHTML = "";
 
         if (p.payments && p.payments.length > 0) {
+            // Sort payments by newest month first
+            const sortedPayments = [...p.payments].sort((a, b) => {
+                const dateA = getPaymentDate(a);
+                const dateB = getPaymentDate(b);
+                return dateB - dateA;
+            });
 
-          // Sort by newest paid month
-          const sortedPayments = [...p.payments].sort((a, b) => {
-            const dateA = getPaymentMonthDate(a);
-            const dateB = getPaymentMonthDate(b);
+            sortedPayments.forEach(pay => {
+                const div = document.createElement("div");
+                div.className = "payment-item";
 
-            return dateB - dateA; // newest first
-          });
+                let label = "";
+                if (pay.monthPaidFor) {
+                    // New system → show month paid for
+                    label = formatMonthPaid(pay.monthPaidFor);
+                } else if (pay.date) {
+                    // Old system → show payment date
+                    label = pay.date.toDate().toLocaleDateString("fr-FR");
+                } else {
+                    label = "Date inconnue";
+                }
 
-          sortedPayments.forEach(pay => {
-              const div = document.createElement("div");
-              div.className = "payment-item";
+                div.innerHTML = `
+                    ${pay.amount} DA — ${label}
+                    <div class="pay-buttons">
+                      <button class="edit-payment-btn"> Modifier </button>
+                      <button class="delete-payment-btn"><img src="icons/trash-red.png"></button>
+                    </div>
+                `;
 
-              let label = "";
+                // Delete button
+                div.querySelector(".delete-payment-btn").addEventListener("click", () => {
+                    deletePayment(id, pay.id);
+                });
 
-              if (pay.monthPaidFor) {
-                  // New system → show month paid for
-                  label = formatMonthPaid(pay.monthPaidFor);
-              } else if (pay.date) {
-                  // Old system → show payment date
-                  label = pay.date.toDate().toLocaleDateString("fr-FR");
-              } else {
-                  label = "Date inconnue";
-              }
+                // Edit button
+                div.querySelector(".edit-payment-btn").addEventListener("click", () => {
+                    editPayment(id, pay);
+                });
 
-              div.textContent = `${pay.amount} DA — ${label}`;
-              paymentsList.appendChild(div);
-          });
-
+                paymentsList.appendChild(div);
+            });
         } else {
             paymentsList.innerHTML = "<em>Aucun paiement</em>";
         }
@@ -305,6 +337,7 @@ document.getElementById("savePaymentBtn").addEventListener("click", () => {
 
       // Add payment
       const payment = {
+        id: Date.now().toString(),
         amount,
         paidAt: firebase.firestore.Timestamp.now(),
         monthPaidFor
@@ -316,6 +349,7 @@ document.getElementById("savePaymentBtn").addEventListener("click", () => {
       .then(() => {
         Swal.fire("Succès", "Paiement enregistré", "success");
         document.getElementById("paymentAmount").value = "";
+        document.getElementById("paymentMonth").value = "";
         participantPayment(editingId); // reload payment history
       })
       .catch(err => {
@@ -354,6 +388,68 @@ function isPaidThisMonth(payments = []) {
   });
 }
 
+// Delete a payment
+function deletePayment(participantId, paymentId) {
+    Swal.fire({
+        title: "Es-tu sûr ?",
+        text: "Le paiement sera définitivement supprimé !",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Oui, supprimez-le !",
+        cancelButtonText: "Non, annulez !",
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Get participant and remove the payment
+            db.collection("participants").doc(participantId).get().then(doc => {
+                if (!doc.exists) return;
+                const participant = doc.data();
+                const updatedPayments = (participant.payments || []).filter(p => p.id !== paymentId);
+
+                db.collection("participants").doc(participantId).update({ payments: updatedPayments })
+                    .then(() => {
+                        Swal.fire("Supprimé !", "Paiement supprimé.", "success");
+                        participantPayment(participantId); // reload payment history
+                    });
+            }).catch(err => {
+                console.error(err);
+                Swal.fire("Erreur", "Impossible de supprimer le paiement.", "error");
+            });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            Swal.fire("Annulé", "Vous avez annulé la suppression", "info");
+        }
+    });
+}
+
+
+// Edit a payment
+function editPayment(participantId, pay) {
+    const newAmount = prompt("Montant du paiement :", pay.amount);
+    if (!newAmount || isNaN(newAmount)) return;
+
+    const newMonth = prompt("Mois payé pour (YYYY-MM-DD) :", pay.monthPaidFor);
+    if (!newMonth) return;
+
+    db.collection("participants").doc(participantId).get().then(doc => {
+        const participant = doc.data();
+        const payments = participant.payments || [];
+
+        // Prevent duplicate month (excluding current payment)
+        const duplicateMonth = payments.some(p => p.id !== pay.id && p.monthPaidFor === newMonth);
+        if (duplicateMonth) {
+            Swal.fire("Erreur", "Ce mois a déjà été payé", "error");
+            return;
+        }
+
+        const updatedPayments = payments.map(p => p.id === pay.id ? { ...p, amount: Number(newAmount), monthPaidFor: newMonth } : p);
+
+        db.collection("participants").doc(participantId).update({ payments: updatedPayments })
+        .then(() => {
+            Swal.fire("Modifié !", "Paiement mis à jour.", "success");
+            participantPayment(participantId);
+        });
+    });
+}
 
 
 function hideLoadingSkeleton() {
@@ -570,6 +666,26 @@ function getPaymentMonthDate(pay) {
 
   // If nothing valid
   return null;
+}
+
+// Get the actual date of a payment (for old and new payment formats)
+function getPaymentDate(pay) {
+    // New system → monthPaidFor field (string or date)
+    if (pay.monthPaidFor) {
+        return new Date(pay.monthPaidFor);
+    }
+
+    // Old system → date field (Firestore Timestamp)
+    if (pay.date && typeof pay.date.toDate === "function") {
+        return pay.date.toDate();
+    }
+
+    // Old system → maybe paidAt field (if added)
+    if (pay.paidAt && typeof pay.paidAt.toDate === "function") {
+        return pay.paidAt.toDate();
+    }
+
+    return null; // no valid date
 }
 
 if ('serviceWorker' in navigator) {

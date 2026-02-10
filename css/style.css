@@ -262,11 +262,40 @@ main #canceladdParticipantBtn{
 }
 
 .payment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 8px;
   background: #f5f5f5;
   border-radius: 6px;
   margin-bottom: 6px;
   font-size: 0.9rem;
+}
+
+.payment-item img{
+  width: 20px;
+}
+
+.payment-item .pay-buttons{
+  display: flex;
+  gap: 10px;
+}
+
+.payment-item .delete-payment-btn{
+  border: solid 1px #e53935;
+  background-color: white;
+  color: #e53935;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.payment-item .edit-payment-btn{
+  border: solid 1px #007bff;
+  color: #007bff;
+  background-color: white;
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .payment-participant-name {
