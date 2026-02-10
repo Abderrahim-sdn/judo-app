@@ -66,12 +66,24 @@ function addParticipant() {
     })
     .then(() => {
         Swal.fire({
-            title: "Participant ajouté avec succes",
+            title: "Participant ajouté avec succès",
             icon: "success",
+            draggable: true
+        }).then(() => {
+            form.reset();
+            ceintureSelect.className = "";
+            document.getElementById("dateInscription").valueAsDate = new Date();
+        });
+    })
+    .catch((error) => {
+        console.error("Error adding participant: ", error);
+        Swal.fire({
+            title: "Erreur",
+            text: "Impossible d'ajouter le participant.",
+            icon: "error",
             draggable: true
         });
     });
-    // cancelBtn.click();
 }
 
 
