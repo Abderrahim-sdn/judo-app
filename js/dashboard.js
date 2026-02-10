@@ -59,9 +59,9 @@ function updateDashboard(participants) {
 
     if (p.payments) {
       p.payments.forEach(pay => {
-        if (!pay.date || typeof pay.date.toDate !== "function") return;
+        const d = getPaymentDate(pay);
+        if (!d) return;
 
-        const d = pay.date.toDate();
         if (d.getMonth() === month && d.getFullYear() === year) {
           revenue += pay.amount;
           paidThisMonth = true;
@@ -102,9 +102,8 @@ function renderRevenueChart(participants) {
         if (!p.payments) return;
 
         p.payments.forEach(pay => {
-        if (!pay.date || typeof pay.date.toDate !== "function") return;
-
-        const payDate = pay.date.toDate();
+        const payDate = getPaymentDate(pay);
+        if (!payDate) return;
 
         for (let i = 0; i < 5; i++) {
             const d = new Date(now.getFullYear(), now.getMonth() - (4 - i), 1);
@@ -296,6 +295,21 @@ if ('serviceWorker' in navigator) {
     .then(() => console.log('Service Worker Registered'))
     .catch(err => console.log('SW registration failed:', err));
 }
+
+function getPaymentDate(pay) {
+  // New system → month subscription
+  if (pay.monthPaidFor) {
+    return new Date(pay.monthPaidFor);
+  }
+
+  // Old system → direct payment date
+  if (pay.date && typeof pay.date.toDate === "function") {
+    return pay.date.toDate();
+  }
+
+  return null;
+}
+
 
 // Run when page loads
 window.addEventListener("DOMContentLoaded", loadDashboardData);
