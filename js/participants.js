@@ -413,32 +413,70 @@ function deletePayment(participantId, paymentId) {
     });
 }
 
-
 // Edit a payment
 function editPayment(participantId, pay) {
-    const newAmount = prompt("Montant du paiement :", pay.amount);
-    if (!newAmount || isNaN(newAmount)) return;
+    Swal.fire({
+        title: "Modifier le paiement",
+        html: `
+            <div style="text-align:left; font-family: sans-serif;">
+                <label for="swal-amount" style="display:block; margin-bottom:8px; font-size: 18px; color: #333;">Montant (DA)</label>
+                <input id="swal-amount" type="number" 
+                       value="${pay.amount}" 
+                       style="width:100%; height: 50px; padding: 10px 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; margin-bottom: 20px; outline: none;">
 
-    const newMonth = prompt("Mois payé pour (YYYY-MM-DD) :", pay.monthPaidFor);
-    if (!newMonth) return;
+                <label for="swal-month" style="display:block; margin-bottom:8px; font-size: 18px; color: #333;">Mois payé</label>
+                <input id="swal-month" type="month" 
+                       value="${pay.monthPaidFor ? pay.monthPaidFor.slice(0, 7) : ''}" 
+                       style="width:100%; height: 50px; padding: 10px 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; outline: none;">
+            </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: "Enregistrer",
+        cancelButtonText: "Annuler",
+        confirmButtonColor: '#3085d6', // Standard mobile blue
+        customClass: {
+            popup: 'swal2-payment-modal',
+            confirmButton: 'mobile-confirm-btn'
+        },
+        preConfirm: () => {
+            const newAmount = parseFloat(document.getElementById('swal-amount').value);
+            const newMonth = document.getElementById('swal-month').value;
 
-    db.collection("participants").doc(participantId).get().then(doc => {
-        const participant = doc.data();
-        const payments = participant.payments || [];
+            if (!newAmount || newAmount <= 0) {
+                Swal.showValidationMessage("Montant invalide");
+                return false;
+            }
+            if (!newMonth) {
+                Swal.showValidationMessage("Veuillez choisir un mois");
+                return false;
+            }
 
-        // Prevent duplicate month (excluding current payment)
-        const duplicateMonth = payments.some(p => p.id !== pay.id && p.monthPaidFor === newMonth);
-        if (duplicateMonth) {
-            Swal.fire("Erreur", "Ce mois a déjà été payé", "error");
-            return;
+            return { newAmount, newMonth };
         }
+    }).then((result) => {
+        if (!result.isConfirmed) return;
 
-        const updatedPayments = payments.map(p => p.id === pay.id ? { ...p, amount: Number(newAmount), monthPaidFor: newMonth } : p);
+        const { newAmount, newMonth } = result.value;
 
-        db.collection("participants").doc(participantId).update({ payments: updatedPayments })
-        .then(() => {
-            Swal.fire("Modifié !", "Paiement mis à jour.", "success");
-            participantPayment(participantId);
+        // Update Firestore logic remains the same
+        db.collection("participants").doc(participantId).get().then(doc => {
+            const participant = doc.data();
+            const payments = participant.payments || [];
+
+            const duplicateMonth = payments.some(p => p.id !== pay.id && p.monthPaidFor === newMonth);
+            if (duplicateMonth) {
+                Swal.fire("Erreur", "Ce mois a déjà été payé", "error");
+                return;
+            }
+
+            const updatedPayments = payments.map(p => p.id === pay.id ? { ...p, amount: newAmount, monthPaidFor: newMonth } : p);
+
+            db.collection("participants").doc(participantId).update({ payments: updatedPayments })
+            .then(() => {
+                Swal.fire("Modifié !", "Paiement mis à jour.", "success");
+                if (typeof participantPayment === 'function') participantPayment(participantId);
+            });
         });
     });
 }
