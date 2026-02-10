@@ -239,13 +239,35 @@ function participantPayment(id) {
         paymentsList.innerHTML = "";
 
         if (p.payments && p.payments.length > 0) {
-            p.payments.forEach(pay => {
-                const div = document.createElement("div");
-                div.className = "payment-item";
-                const date = pay.date.toDate().toLocaleDateString("fr-FR");
-                div.textContent = `${pay.amount} DA — ${date}`;
-                paymentsList.appendChild(div);
-            });
+
+          // Sort by newest paid month
+          const sortedPayments = [...p.payments].sort((a, b) => {
+            const dateA = getPaymentMonthDate(a);
+            const dateB = getPaymentMonthDate(b);
+
+            return dateB - dateA; // newest first
+          });
+
+          sortedPayments.forEach(pay => {
+              const div = document.createElement("div");
+              div.className = "payment-item";
+
+              let label = "";
+
+              if (pay.monthPaidFor) {
+                  // New system → show month paid for
+                  label = formatMonthPaid(pay.monthPaidFor);
+              } else if (pay.date) {
+                  // Old system → show payment date
+                  label = pay.date.toDate().toLocaleDateString("fr-FR");
+              } else {
+                  label = "Date inconnue";
+              }
+
+              div.textContent = `${pay.amount} DA — ${label}`;
+              paymentsList.appendChild(div);
+          });
+
         } else {
             paymentsList.innerHTML = "<em>Aucun paiement</em>";
         }
@@ -264,7 +286,8 @@ document.getElementById("savePaymentBtn").addEventListener("click", () => {
 
     const payment = {
         amount,
-        date: firebase.firestore.Timestamp.now()
+        paidAt: firebase.firestore.Timestamp.now(),
+        monthPaidFor: document.getElementById("paymentMonth").value
     };
 
     db.collection("participants").doc(editingId).update({
@@ -289,6 +312,25 @@ document.getElementById("cancelPaymentBtn").addEventListener("click", () => {
     loadParticipants();
     editingId = null;
 });
+
+// document.getElementById("paymentMonth").valueAsDate = new Date();
+
+
+function isPaidThisMonth(payments = []) {
+  if (!payments || payments.length === 0) return false;
+
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  return payments.some(p => {
+    const d = getPaymentMonthDate(p);
+    if (!d) return false;
+
+    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+  });
+}
+
 
 
 function hideLoadingSkeleton() {
@@ -345,24 +387,6 @@ filterCeinture.addEventListener("change", () => {
     filterCeinture.classList.add("ceinture-" + value);
   }
 });
-
-function isPaidThisMonth(payments = []) {
-  if (!payments || payments.length === 0) return false;
-
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
-
-  return payments.some(p => {
-    if (!p.date || typeof p.date.toDate !== "function") return false;
-
-    const d = p.date.toDate();
-    return (
-      d.getMonth() === currentMonth &&
-      d.getFullYear() === currentYear
-    );
-  });
-}
 
 
 
@@ -499,6 +523,30 @@ function formatDate(date) {
   const year = date.getFullYear();
 
   return `${day}/${month}/${year}`;
+}
+
+function formatMonthPaid(dateString) {
+  const date = new Date(dateString);
+
+  return date.toLocaleDateString("fr-FR", {
+    month: "long",
+    year: "numeric"
+  });
+}
+
+function getPaymentMonthDate(pay) {
+  // New format (preferred)
+  if (pay.monthPaidFor) {
+    return new Date(pay.monthPaidFor);
+  }
+
+  // Old format fallback
+  if (pay.date && typeof pay.date.toDate === "function") {
+    return pay.date.toDate();
+  }
+
+  // If nothing valid
+  return null;
 }
 
 if ('serviceWorker' in navigator) {
