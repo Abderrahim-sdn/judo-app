@@ -275,32 +275,53 @@ function participantPayment(id) {
 }
 
 document.getElementById("savePaymentBtn").addEventListener("click", () => {
-    if (!editingId) return;
+  if (!editingId) return;
 
-    const amount = Number(document.getElementById("paymentAmount").value);
+  const amount = Number(document.getElementById("paymentAmount").value);
+  const monthPaidFor = document.getElementById("paymentMonth").value;
 
-    if (!amount || amount <= 0) {
-        Swal.fire("Erreur", "Montant invalide", "error");
+  if (!amount || amount <= 0) {
+    Swal.fire("Erreur", "Montant invalide", "error");
+    return;
+  }
+
+  // Get current participant
+  db.collection("participants").doc(editingId).get()
+    .then(doc => {
+      if (!doc.exists) return;
+
+      const participant = doc.data();
+      const payments = participant.payments || [];
+
+      // Prevent duplicate month
+      const alreadyPaid = payments.some(pay => {
+        return (pay.monthPaidFor && pay.monthPaidFor === monthPaidFor);
+      });
+
+      if (alreadyPaid) {
+        Swal.fire("Erreur", "Ce mois a déjà été payé", "error");
         return;
-    }
+      }
 
-    const payment = {
+      // Add payment
+      const payment = {
         amount,
         paidAt: firebase.firestore.Timestamp.now(),
-        monthPaidFor: document.getElementById("paymentMonth").value
-    };
+        monthPaidFor
+      };
 
-    db.collection("participants").doc(editingId).update({
+      db.collection("participants").doc(editingId).update({
         payments: firebase.firestore.FieldValue.arrayUnion(payment)
-    })
-    .then(() => {
+      })
+      .then(() => {
         Swal.fire("Succès", "Paiement enregistré", "success");
         document.getElementById("paymentAmount").value = "";
         participantPayment(editingId); // reload payment history
-    })
-    .catch(err => {
+      })
+      .catch(err => {
         console.error(err);
         Swal.fire("Erreur", "Impossible d'enregistrer le paiement", "error");
+      });
     });
 });
 
@@ -309,6 +330,8 @@ document.getElementById("cancelPaymentBtn").addEventListener("click", () => {
     document.getElementById("content").style.display = "block";
     document.getElementById("searchDiv").style.display = "flex";
     document.getElementById("searchInput").value = "";
+    document.getElementById("paymentAmount").value = "";
+    document.getElementById("paymentMonth").value = "";
     loadParticipants();
     editingId = null;
 });
