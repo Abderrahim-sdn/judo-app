@@ -1,4 +1,4 @@
-const CACHE_NAME = 'judo-app-cache-v3';
+const CACHE_NAME = 'judo-app-cache-v4';
 
 const urlsToCache = [
   '/',
