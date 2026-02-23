@@ -25,7 +25,6 @@ const urlsToCache = [
   'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
   'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js',
   'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js',
-  'https://cdn.jsdelivr.net/npm/chart.js',
 
   // Charts
   'https://cdn.jsdelivr.net/npm/chart.js'
