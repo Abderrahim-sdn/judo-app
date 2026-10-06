@@ -248,34 +248,38 @@ function participantPayment(id) {
 
         document.getElementById("paymentParticipantName").textContent = p.nom + " " + p.prenom;
 
+        resetPaymentForm();
+
         const paymentsList = document.getElementById("paymentsList");
         paymentsList.innerHTML = "";
 
         if (p.payments && p.payments.length > 0) {
             // Sort payments by newest month first
             const sortedPayments = [...p.payments].sort((a, b) => {
-                const dateA = getPaymentDate(a);
-                const dateB = getPaymentDate(b);
-                return dateB - dateA;
+                const dateA = getExactPaymentDate(a) || getPaymentDate(a) || new Date(0);
+                const dateB = getExactPaymentDate(b) || getPaymentDate(b) || new Date(0);
+
+                // Oldest payment date first
+                if (dateA - dateB !== 0) return dateA - dateB;
+
+                // Same day → oldest created payment first (id is a creation timestamp)
+                return (parseFloat(a.id) || 0) - (parseFloat(b.id) || 0);
             });
 
             sortedPayments.forEach(pay => {
                 const div = document.createElement("div");
                 div.className = "payment-item";
 
-                let label = "";
-                if (pay.monthPaidFor) {
-                    // New system → show month paid for
-                    label = formatMonthPaid(pay.monthPaidFor);
-                } else if (pay.date) {
-                    // Old system → show payment date
-                    label = pay.date.toDate().toLocaleDateString("fr-FR");
-                } else {
-                    label = "Date inconnue";
-                }
+                const paidDate = getExactPaymentDate(pay);
+                const paidLabel = paidDate ? formatDate(paidDate) : "Date inconnue";
+                const monthLabel = pay.monthPaidFor ? formatMonthPaid(pay.monthPaidFor) : "-";
 
                 div.innerHTML = `
-                    ${pay.amount} DA — ${label}
+                    <div>
+                      <strong>${pay.amount} DA</strong><br>
+                      Payé le : ${paidLabel}<br>
+                      Mois payé : ${monthLabel}
+                    </div>
                     <div class="pay-buttons">
                       <button class="edit-payment-btn"> Modifier </button>
                       <button class="delete-payment-btn"><img src="icons/trash-red.png"></button>
@@ -304,10 +308,21 @@ document.getElementById("savePaymentBtn").addEventListener("click", () => {
   if (!editingId) return;
 
   const amount = Number(document.getElementById("paymentAmount").value);
+  const paymentDateValue = document.getElementById("paymentDate").value;
   const monthPaidFor = document.getElementById("paymentMonth").value;
 
   if (!amount || amount <= 0) {
     Swal.fire("Erreur", "Montant invalide", "error");
+    return;
+  }
+
+  if (!paymentDateValue) {
+    Swal.fire("Erreur", "Veuillez choisir une date de paiement", "error");
+    return;
+  }
+
+  if (!monthPaidFor) {
+    Swal.fire("Erreur", "Veuillez choisir un mois payé", "error");
     return;
   }
 
@@ -319,13 +334,18 @@ document.getElementById("savePaymentBtn").addEventListener("click", () => {
       const participant = doc.data();
       const payments = participant.payments || [];
 
-      // Prevent duplicate month
-      const alreadyPaid = payments.some(pay => {
-        return (pay.monthPaidFor && pay.monthPaidFor === monthPaidFor);
-      });
+      // Month total (several payments allowed) must not exceed the limit
+      const alreadyPaidAmount = getMonthTotal(payments, monthPaidFor);
+      const remaining = MAX_MONTH_AMOUNT - alreadyPaidAmount;
 
-      if (alreadyPaid) {
-        Swal.fire("Erreur", "Ce mois a déjà été payé", "error");
+      if (amount > remaining) {
+        Swal.fire(
+          "Erreur",
+          remaining <= 0
+            ? `Ce mois est déjà payé en totalité (${MAX_MONTH_AMOUNT} DA)`
+            : `Le total du mois ne peut pas dépasser ${MAX_MONTH_AMOUNT} DA. Déjà payé : ${alreadyPaidAmount} DA, reste : ${remaining} DA`,
+          "error"
+        );
         return;
       }
 
@@ -333,7 +353,7 @@ document.getElementById("savePaymentBtn").addEventListener("click", () => {
       const payment = {
         id: Date.now().toString(),
         amount,
-        paidAt: firebase.firestore.Timestamp.now(),
+        paidAt: dateStringToTimestamp(paymentDateValue),
         monthPaidFor
       };
 
@@ -342,8 +362,7 @@ document.getElementById("savePaymentBtn").addEventListener("click", () => {
       })
       .then(() => {
         Swal.fire("Succès", "Paiement enregistré", "success");
-        document.getElementById("paymentAmount").value = "";
-        document.getElementById("paymentMonth").value = "";
+        resetPaymentForm();
         participantPayment(editingId); // reload payment history
       })
       .catch(err => {
@@ -358,13 +377,65 @@ document.getElementById("cancelPaymentBtn").addEventListener("click", () => {
     document.getElementById("content").style.display = "block";
     document.getElementById("searchDiv").style.display = "flex";
     document.getElementById("searchInput").value = "";
-    document.getElementById("paymentAmount").value = "";
-    document.getElementById("paymentMonth").value = "";
+    resetPaymentForm();
     loadParticipants();
     editingId = null;
 });
 
-// document.getElementById("paymentMonth").valueAsDate = new Date();
+// ===== Monthly limit =====
+const MAX_MONTH_AMOUNT = 1000;
+
+// Sum of payments for a given month (YYYY-MM), optionally excluding one payment
+function getMonthTotal(payments, month, excludeId = null) {
+  return (payments || []).reduce((sum, pay) => {
+    if (excludeId && pay.id === excludeId) return sum;
+    if (pay.monthPaidFor && pay.monthPaidFor.slice(0, 7) === month.slice(0, 7)) {
+      return sum + (Number(pay.amount) || 0);
+    }
+    return sum;
+  }, 0);
+}
+
+// ===== Payment date helpers =====
+let paymentMonthTouched = false;
+
+function dateToInputString(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+// "YYYY-MM-DD" -> Firestore Timestamp (local noon, avoids timezone day shifts)
+function dateStringToTimestamp(str) {
+  const [y, m, d] = str.split("-").map(Number);
+  return firebase.firestore.Timestamp.fromDate(new Date(y, m - 1, d, 12, 0, 0));
+}
+
+// Exact payment day of a payment (paidAt, or legacy date field)
+function getExactPaymentDate(pay) {
+  if (pay.paidAt && typeof pay.paidAt.toDate === "function") return pay.paidAt.toDate();
+  if (pay.date && typeof pay.date.toDate === "function") return pay.date.toDate();
+  return null;
+}
+
+function resetPaymentForm() {
+  const today = dateToInputString(new Date());
+  document.getElementById("paymentAmount").value = "";
+  document.getElementById("paymentDate").value = today;
+  document.getElementById("paymentMonth").value = today.slice(0, 7);
+  paymentMonthTouched = false;
+}
+
+document.getElementById("paymentMonth").addEventListener("input", () => {
+  paymentMonthTouched = true;
+});
+
+document.getElementById("paymentDate").addEventListener("change", (e) => {
+  if (!paymentMonthTouched && e.target.value) {
+    document.getElementById("paymentMonth").value = e.target.value.slice(0, 7);
+  }
+});
 
 
 function isPaidThisMonth(payments = []) {
@@ -415,6 +486,14 @@ function deletePayment(participantId, paymentId) {
 
 // Edit a payment
 function editPayment(participantId, pay) {
+    const editPaidDate = getExactPaymentDate(pay);
+    let editMonthValue = "";
+    if (pay.monthPaidFor) {
+        editMonthValue = pay.monthPaidFor.slice(0, 7);
+    } else if (editPaidDate) {
+        editMonthValue = dateToInputString(editPaidDate).slice(0, 7);
+    }
+
     Swal.fire({
         title: "Modifier le paiement",
         html: `
@@ -424,9 +503,14 @@ function editPayment(participantId, pay) {
                        value="${pay.amount}" 
                        style="width:100%; height: 50px; padding: 10px 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; margin-bottom: 20px; outline: none;">
 
+                <label for="swal-date" style="display:block; margin-bottom:8px; font-size: 18px; color: #333;">Date de paiement</label>
+                <input id="swal-date" type="date" 
+                       value="${editPaidDate ? dateToInputString(editPaidDate) : ''}" 
+                       style="width:100%; height: 50px; padding: 10px 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; margin-bottom: 20px; outline: none;">
+
                 <label for="swal-month" style="display:block; margin-bottom:8px; font-size: 18px; color: #333;">Mois payé</label>
                 <input id="swal-month" type="month" 
-                       value="${pay.monthPaidFor ? pay.monthPaidFor.slice(0, 7) : ''}" 
+                       value="${editMonthValue}" 
                        style="width:100%; height: 50px; padding: 10px 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; outline: none;">
             </div>
         `,
@@ -441,10 +525,15 @@ function editPayment(participantId, pay) {
         },
         preConfirm: () => {
             const newAmount = parseFloat(document.getElementById('swal-amount').value);
+            const newDate = document.getElementById('swal-date').value;
             const newMonth = document.getElementById('swal-month').value;
 
             if (!newAmount || newAmount <= 0) {
                 Swal.showValidationMessage("Montant invalide");
+                return false;
+            }
+            if (!newDate) {
+                Swal.showValidationMessage("Veuillez choisir une date de paiement");
                 return false;
             }
             if (!newMonth) {
@@ -452,25 +541,32 @@ function editPayment(participantId, pay) {
                 return false;
             }
 
-            return { newAmount, newMonth };
+            return { newAmount, newDate, newMonth };
         }
     }).then((result) => {
         if (!result.isConfirmed) return;
 
-        const { newAmount, newMonth } = result.value;
+        const { newAmount, newDate, newMonth } = result.value;
 
         // Update Firestore logic remains the same
         db.collection("participants").doc(participantId).get().then(doc => {
             const participant = doc.data();
             const payments = participant.payments || [];
 
-            const duplicateMonth = payments.some(p => p.id !== pay.id && p.monthPaidFor === newMonth);
-            if (duplicateMonth) {
-                Swal.fire("Erreur", "Ce mois a déjà été payé", "error");
+            const otherPaidAmount = getMonthTotal(payments, newMonth, pay.id);
+            const remaining = MAX_MONTH_AMOUNT - otherPaidAmount;
+            if (newAmount > remaining) {
+                Swal.fire(
+                    "Erreur",
+                    remaining <= 0
+                        ? `Ce mois est déjà payé en totalité (${MAX_MONTH_AMOUNT} DA)`
+                        : `Le total du mois ne peut pas dépasser ${MAX_MONTH_AMOUNT} DA. Déjà payé : ${otherPaidAmount} DA, reste : ${remaining} DA`,
+                    "error"
+                );
                 return;
             }
 
-            const updatedPayments = payments.map(p => p.id === pay.id ? { ...p, amount: newAmount, monthPaidFor: newMonth } : p);
+            const updatedPayments = payments.map(p => p.id === pay.id ? { ...p, amount: newAmount, paidAt: dateStringToTimestamp(newDate), monthPaidFor: newMonth } : p);
 
             db.collection("participants").doc(participantId).update({ payments: updatedPayments })
             .then(() => {
@@ -674,8 +770,13 @@ function formatDate(date) {
   return `${day}/${month}/${year}`;
 }
 
+function parseMonthString(str) {
+  const [y, m] = String(str).slice(0, 7).split("-").map(Number);
+  return new Date(y, (m || 1) - 1, 1);
+}
+
 function formatMonthPaid(dateString) {
-  const date = new Date(dateString);
+  const date = parseMonthString(dateString);
 
   return date.toLocaleDateString("fr-FR", {
     month: "long",
@@ -686,7 +787,7 @@ function formatMonthPaid(dateString) {
 function getPaymentMonthDate(pay) {
   // New format (preferred)
   if (pay.monthPaidFor) {
-    return new Date(pay.monthPaidFor);
+    return parseMonthString(pay.monthPaidFor);
   }
 
   // Old format fallback
