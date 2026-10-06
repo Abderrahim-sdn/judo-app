@@ -1,4 +1,4 @@
-const CACHE_NAME = 'judo-app-cache-v5';
+const CACHE_NAME = 'judo-app-cache-v7';
 
 const urlsToCache = [
   '/',
@@ -8,30 +8,21 @@ const urlsToCache = [
   '/login.html',
   '/participantsList.html',
 
-  // CSS
   '/css/style.css',
   '/css/login.css',
 
-  // JS
   '/js/dashboard.js',
-  '/js/install.js', 
-  '/js/login.js', 
+  '/js/install.js',
+  '/js/login.js',
   '/js/participants.js',
   '/js/script.js',
+
   '/manifest.json',
-  '/sw-register.js',
-
-  // Firebase
-  'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
-  'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js',
-  'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js',
-
-  // Charts
-  'https://cdn.jsdelivr.net/npm/chart.js'
+  '/sw-register.js'
 ];
 
 self.addEventListener('install', event => {
-  self.skipWaiting(); // activate new SW immediately
+  self.skipWaiting();
 
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -41,31 +32,52 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
+    caches.keys().then(keys =>
+      Promise.all(
         keys
           .filter(key => key !== CACHE_NAME)
           .map(key => caches.delete(key))
-      );
-    })
+      )
+    )
   );
 
-  self.clients.claim(); // take control of open pages
+  self.clients.claim();
 });
 
-
 self.addEventListener('fetch', event => {
+
+  const url = new URL(event.request.url);
+
+  // NEVER intercept Firebase / Google API requests
+  if (
+    url.hostname === 'firestore.googleapis.com' ||
+    url.hostname === 'firebase.googleapis.com' ||
+    url.hostname.endsWith('.googleapis.com')
+  ) {
+    return;
+  }
+
+  // HTML → network first
   if (event.request.mode === 'navigate') {
-    // Always try network first for pages
     event.respondWith(
       fetch(event.request)
-        .catch(() => caches.match('/index.html'))
+        .catch(() => caches.match(event.request))
     );
-  } else {
-    // Cache first for static files
-    event.respondWith(
-      caches.match(event.request)
-        .then(response => response || fetch(event.request))
-    );
+    return;
   }
+
+  // JavaScript → network first
+  if (event.request.destination === 'script') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Other files → cache first
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => response || fetch(event.request))
+  );
 });

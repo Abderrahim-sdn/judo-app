@@ -115,11 +115,5 @@ function logout() {
   window.location.href = "login.html";
 }
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js')
-    .then(() => console.log('Service Worker Registered'))
-    .catch(err => console.log('SW registration failed:', err));
-}
-
 // new participants Pre-fill with today’s date
 document.getElementById("dateInscription").valueAsDate = new Date();
